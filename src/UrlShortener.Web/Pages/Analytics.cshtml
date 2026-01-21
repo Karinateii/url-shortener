@@ -1,0 +1,153 @@
+@page "{id:int}"
+@model UrlShortener.Web.Pages.AnalyticsModel
+@{
+    ViewData["Title"] = "Analytics";
+}
+
+<div class="analytics-section">
+    <div class="container">
+        @if (Model.Url == null)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">❌</div>
+                <h3>URL not found</h3>
+                <p>The requested URL could not be found</p>
+                <a href="/Dashboard" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        }
+        else
+        {
+            <div class="analytics-header">
+                <a href="/Dashboard" class="back-link">← Back to Dashboard</a>
+                <h1>Analytics</h1>
+                <div class="url-info">
+                    <div class="short-url">
+                        <strong>Short URL:</strong>
+                        <a href="/@Model.Url.ShortCode" target="_blank">/@Model.Url.ShortCode</a>
+                    </div>
+                    <div class="original-url">
+                        <strong>Original:</strong>
+                        <span title="@Model.Url.OriginalUrl">@TruncateUrl(Model.Url.OriginalUrl, 80)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analytics-stats">
+                <div class="stat-card large">
+                    <div class="stat-value">@Model.Url.ClickCount</div>
+                    <div class="stat-label">Total Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@(Model.Url.LastClickedAt?.ToString("MMM dd") ?? "Never")</div>
+                    <div class="stat-label">Last Click</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">@Model.Url.CreatedAt.ToString("MMM dd, yyyy")</div>
+                    <div class="stat-label">Created</div>
+                </div>
+            </div>
+            
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>📊 Clicks Over Time (Last 30 Days)</h3>
+                    @if (Model.DailyClicks.Any())
+                    {
+                        <div class="chart-container">
+                            <div class="bar-chart">
+                                @foreach (var day in Model.Last30Days)
+                                {
+                                    var clicks = Model.DailyClicks.GetValueOrDefault(day.Date, 0);
+                                    var height = Model.MaxDailyClicks > 0 ? (clicks * 100 / Model.MaxDailyClicks) : 0;
+                                    <div class="bar-wrapper" title="@day.ToString("MMM dd"): @clicks clicks">
+                                        <div class="bar" style="height: @height%"></div>
+                                        <span class="bar-label">@day.ToString("dd")</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-data">No click data available yet</p>
+                    }
+                </div>
+                
+                <div class="analytics-card">
+                    <h3>📱 Device Breakdown</h3>
+                    @if (Model.DeviceBreakdown.Any())
+                    {
+                        <div class="breakdown-list">
+                            @foreach (var device in Model.DeviceBreakdown)
+                            {
+                                var percentage = Model.Url.ClickCount > 0 ? (device.Value * 100 / Model.Url.ClickCount) : 0;
+                                <div class="breakdown-item">
+                                    <span class="breakdown-label">@device.Key</span>
+                                    <div class="breakdown-bar-container">
+                                        <div class="breakdown-bar" style="width: @percentage%"></div>
+                                    </div>
+                                    <span class="breakdown-value">@device.Value (@percentage%)</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-data">No device data available yet</p>
+                    }
+                </div>
+                
+                <div class="analytics-card">
+                    <h3>🌐 Browser Breakdown</h3>
+                    @if (Model.BrowserBreakdown.Any())
+                    {
+                        <div class="breakdown-list">
+                            @foreach (var browser in Model.BrowserBreakdown)
+                            {
+                                var percentage = Model.Url.ClickCount > 0 ? (browser.Value * 100 / Model.Url.ClickCount) : 0;
+                                <div class="breakdown-item">
+                                    <span class="breakdown-label">@browser.Key</span>
+                                    <div class="breakdown-bar-container">
+                                        <div class="breakdown-bar" style="width: @percentage%"></div>
+                                    </div>
+                                    <span class="breakdown-value">@browser.Value (@percentage%)</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-data">No browser data available yet</p>
+                    }
+                </div>
+                
+                <div class="analytics-card">
+                    <h3>🔗 Top Referrers</h3>
+                    @if (Model.TopReferrers.Any())
+                    {
+                        <div class="referrer-list">
+                            @foreach (var referrer in Model.TopReferrers)
+                            {
+                                <div class="referrer-item">
+                                    <span class="referrer-url" title="@referrer.Key">@TruncateUrl(referrer.Key, 40)</span>
+                                    <span class="referrer-count">@referrer.Value clicks</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-data">No referrer data available yet</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string TruncateUrl(string url, int maxLength)
+    {
+        if (url.Length <= maxLength) return url;
+        return url.Substring(0, maxLength) + "...";
+    }
+}
