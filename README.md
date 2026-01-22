@@ -85,3 +85,11 @@ Configure the application in `appsettings.json`:
 ## License
 
 MIT License - feel free to use this project for learning or personal projects.
+
+## Author
+
+**Ebenezer Doutimiwei** - [GitHub](https://github.com/Karinateii)
+
+---
+
+*Built with .NET 8 and a lot of coffee ☕*
