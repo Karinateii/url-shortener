@@ -92,4 +92,4 @@ MIT License - feel free to use this project for learning or personal projects.
 
 ---
 
-*Built with .NET 8 and a lot of coffee ☕*
+*Built with .NET 8*
